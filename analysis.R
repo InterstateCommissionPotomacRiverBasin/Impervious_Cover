@@ -8,7 +8,7 @@
 #==============================================================================
 #==============================================================================
 # Prepare the watershed characteristic data.
-source("C:/Users/zsmith/Desktop/Impervious_Cover/Impervious_Cover/prep_metrics.R")
+source("prep_metrics.R")
 #==============================================================================
 # Create a training data set and testing data set.
 #==============================================================================
@@ -25,7 +25,7 @@ alt.cols <- c("ALTERATION_MH21", "ALTERATION_DH17",
 # Spearman Correlation
 #==============================================================================
 # Import correlation functions.
-source("C:/Users/zsmith/Desktop/Impervious_Cover/Impervious_Cover/correlation_func.R")
+source("correlation_func.R")
 #------------------------------------------------------------------------------
 # Perform all correlations for the Baseline/Current Scenario.
 corr_env_env(base.cur, "cur")
@@ -42,14 +42,14 @@ corr_metric_imp(base.imp, "imp")
 # Random Forest
 #==============================================================================
 # Source the random forest functions.
-source("C:/Users/zsmith/Desktop/Impervious_Cover/Impervious_Cover/random_forest_func.R")
+source("random_forest_func.R")
 plot_random_forest(base.cur[base.cur$TYPE %in% "train", ], "cur", alt.cols, 100000)
 plot_random_forest(base.imp[base.imp$TYPE %in% "train", ], "imp", alt.cols, 100000)
 #==============================================================================
 # Rpart
 #==============================================================================
 # Source the rpart functions.
-source("C:/Users/zsmith/Desktop/Impervious_Cover/Impervious_Cover/rpart_func.R")
+source("rpart_func.R")
 plot_rpart_phase1(base.cur[base.cur$TYPE %in% "train", ], "cur", alt.cols)
 plot_rpart_phase1(base.imp[base.imp$TYPE %in% "train", ], "imp", alt.cols)
 

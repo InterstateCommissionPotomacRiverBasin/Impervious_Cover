@@ -9,7 +9,7 @@
 #setwd("//Pike/data/Projects/ImperviousCover_802/Phase2/Watershed_Characteristics")
 #------------------------------------------------------------------------------
 # Source functions from impervious_functions.R
-source("C:/Users/zsmith/Desktop/Impervious_Cover/Impervious_Cover/impervious_functions.R")
+source("impervious_functions.R")
 #------------------------------------------------------------------------------
 # Load package for importing individual excel sheets.
 library(readxl)

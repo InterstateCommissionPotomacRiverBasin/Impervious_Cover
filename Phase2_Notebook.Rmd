@@ -8,7 +8,7 @@ output:
 ```{r echo = FALSE, message = FALSE}
 library(knitr)
 # Prepare the watershed characteristic data.
-source("prep_metrics.R")
+source("prep/prep_metrics.R")
 #==============================================================================
 # Create a training data set and testing data set.
 #==============================================================================
@@ -22,7 +22,7 @@ alt.cols <- c("ALTERATION_MH21", "ALTERATION_DH17",
               "ALTERATION_3_DAY_MINIMUM", "ALTERATION_EXTREME_LOW_FLOW_FREQ",
               "ALTERATION_EXTREME_LOW_FLOW_DURATION", "IMPERV")
 # Import correlation functions.
-source("correlation_func.R")
+source("functions/correlation_func.R")
 ```
 ### Watershed Characteristics
 ```{r echo = FALSE}
@@ -66,7 +66,7 @@ knitr::kable(corr_metric_imp(base.imp, "imp"), row.names = FALSE,
 ```{r echo = FALSE, warning = FALSE, message = FALSE}
 #==============================================================================
 #setwd("C:/Users/zsmith/Desktop/Impervious_Cover/Output/loess")
-source("loess_func.R")
+source("functions/loess_func.R")
 #==============================================================================
 metric.vec <- c("ALTERATION_FLASHINESS", "ALTERATION_LOW_PULSE_DURATION")
 char.vec <- c("AREA", "KARST", "PRECIP", "FCODE", "SLOPE", "SOIL")
@@ -119,7 +119,7 @@ grid.arrange(low.pulse[[1]], low.pulse[[2]], low.pulse[[3]],
 # Random Forest
 ### Baseline/Current Scenario
 ```{r echo = FALSE, message = FALSE}
-source("random_forest_func.R")
+source("functions/random_forest_func.R")
 plot_random_forest(base.cur[base.cur$TYPE %in% "train", ], "cur", alt.cols, 100000)
 ```
 ### Baseline/Impervious Scenario
@@ -130,7 +130,7 @@ plot_random_forest(base.imp[base.imp$TYPE %in% "train", ], "imp", alt.cols, 1000
 # Rpart
 ### Baseline/Current Scenario
 ```{r echo = FALSE}
-source("rpart_func.R")
+source("functions/rpart_func.R")
 base.cur %>% 
   filter(TYPE %in% "train") %>% 
   plot_rpart("cur", alt.cols, "All")

@@ -9,7 +9,7 @@
 #setwd("//Pike/data/Projects/ImperviousCover_802/Phase2/Watershed_Characteristics")
 #------------------------------------------------------------------------------
 # Source functions from impervious_functions.R
-source("impervious_functions.R")
+source("functions/impervious_functions.R")
 #------------------------------------------------------------------------------
 # Load package for importing individual excel sheets.
 library(readxl)
@@ -23,7 +23,8 @@ library(readxl)
 #    date = 06-12-17
 # These files were merged into one xlsx file by Z. Smith on 06-13-17.
 #------------------------------------------------------------------------------
-file.path <- "//Pike/data/Projects/ImperviousCover_802/Phase2/Watershed_Characteristics"
+#file.path <- "//Pike/data/Projects/ImperviousCover_802/Phase2/Watershed_Characteristics"
+file.path <- "data"
 # Import the Baseline/Current Scenario sheet.
 cur.file <- "final_watershed_characteristics_061317.xlsx"
 cur.path <- paste(file.path, cur.file, sep = "/")

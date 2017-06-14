@@ -1,0 +1,151 @@
+---
+title: "R Notebook"
+output:
+  html_notebook: default
+  html_document: default
+---
+# Spearman Correlations
+```{r echo = FALSE, message = FALSE}
+library(knitr)
+# Prepare the watershed characteristic data.
+source("C:/Users/zsmith/Desktop/Impervious_Cover/Impervious_Cover/prep_metrics.R")
+#==============================================================================
+# Create a training data set and testing data set.
+#==============================================================================
+base.cur <- train_test(base.cur)
+base.imp <- train_test(base.imp)
+#==============================================================================
+# Alteration columns.
+alt.cols <- c("ALTERATION_MH21", "ALTERATION_DH17",
+              "ALTERATION_HIGH_PULSE_COUNT", "ALTERATION_FLASHINESS",
+              "ALTERATION_LOW_PULSE_DURATION", "ALTERATION_3_DAY_MAXIMUM",
+              "ALTERATION_3_DAY_MINIMUM", "ALTERATION_EXTREME_LOW_FLOW_FREQ",
+              "ALTERATION_EXTREME_LOW_FLOW_DURATION", "IMPERV")
+# Import correlation functions.
+source("C:/Users/zsmith/Desktop/Impervious_Cover/Impervious_Cover/correlation_func.R")
+```
+### Watershed Characteristics
+```{r echo = FALSE}
+kable(corr_env_env(base.cur, "cur"),
+             caption = "Watershed Chracteristics", row.names = FALSE,
+      align = "lccccccccc")
+```
+### Baseline/Current Scenario Alteration x Alteration
+```{r echo = FALSE}
+knitr::kable(corr_metric_metric(base.cur, "cur"), row.names = FALSE,
+      align = "lccccccccc")
+```
+### Baseline/Impervious Scenario Alteration x Alteration
+```{r echo = FALSE}
+knitr::kable(corr_metric_metric(base.imp, "imp"), row.names = FALSE,
+      align = "lccccccccc")
+```
+### Baseline/Current Scenario Alteration x Watershed Characteristic
+```{r echo = FALSE}
+knitr::kable(corr_metric_env(base.cur, "cur"), row.names = FALSE,
+      align = "lcccccccc")
+```
+### Baseline/Impervious Scenario Alteration x Watershed Characteristic
+```{r echo = FALSE}
+knitr::kable(corr_metric_env(base.imp, "imp"), row.names = FALSE,
+      align = "lcccccccc")
+```
+### Baseline/Current Scenario Alteration x %Impervious Cover
+```{r echo = FALSE}
+knitr::kable(corr_metric_imp(base.cur, "cur"), row.names = FALSE,
+      align = "lc")
+```
+### Baseline/Impervious Scenario Alteration x %Impervious Cover
+```{r echo = FALSE}
+knitr::kable(corr_metric_imp(base.imp, "imp"), row.names = FALSE,
+      align = "lc")
+```
+***
+# Loess Curves
+### Baseline/Current Scenario
+```{r echo = FALSE, warning = FALSE, message = FALSE}
+#==============================================================================
+#setwd("C:/Users/zsmith/Desktop/Impervious_Cover/Output/loess")
+source("C:/Users/zsmith/Desktop/Impervious_Cover/Impervious_Cover/loess_func.R")
+#==============================================================================
+metric.vec <- c("ALTERATION_FLASHINESS", "ALTERATION_LOW_PULSE_DURATION")
+char.vec <- c("AREA", "KARST", "PRECIP", "FCODE", "SLOPE", "SOIL")
+#-----------------------------------------------------------------------------
+flash <- lapply(char.vec, function(char.x) {
+  plot_loess(base.cur, "ALTERATION_FLASHINESS", watershed.char =  char.x,
+             low.lim = 0, high.lim = 10)
+})
+#png("ALTERATION_FLASHINESS_loess_plots.png", width = 6.5, height = 10.5, units = "in", res = 800)
+grid.arrange(flash[[1]], flash[[2]], flash[[3]], flash[[4]], flash[[5]], flash[[6]])
+#dev.off()
+#==============================================================================
+low.pulse <- lapply(char.vec, function(char.x) {
+  
+  plot_loess(base.cur, "ALTERATION_LOW_PULSE_DURATION", watershed.char =  char.x,
+             low.lim = 0, high.lim = 10)
+  
+})
+#png("ALTERATION_LOW_PULSE_DURATION_loess_plots.png", width = 6.5, height = 10.5, units = "in", res = 800)
+grid.arrange(low.pulse[[1]], low.pulse[[2]], low.pulse[[3]],
+             low.pulse[[4]], low.pulse[[5]], low.pulse[[6]],
+             ncol = 2, nrow = 3)
+#dev.off()
+
+```
+
+### Baseline/Impervious Scenario
+```{r echo = FALSE, warning = FALSE, message = FALSE}
+flash <- lapply(char.vec, function(char.x) {
+  plot_loess(base.imp, "ALTERATION_FLASHINESS", watershed.char =  char.x,
+             low.lim = 0, high.lim = 10)
+})
+#png("ALTERATION_FLASHINESS_loess_plots.png", width = 6.5, height = 10.5, units = "in", res = 800)
+grid.arrange(flash[[1]], flash[[2]], flash[[3]], flash[[4]], flash[[5]], flash[[6]])
+#dev.off()
+#==============================================================================
+low.pulse <- lapply(char.vec, function(char.x) {
+  
+  plot_loess(base.imp, "ALTERATION_LOW_PULSE_DURATION", watershed.char =  char.x,
+             low.lim = 0, high.lim = 10)
+  
+})
+#png("ALTERATION_LOW_PULSE_DURATION_loess_plots.png", width = 6.5, height = 10.5, units = "in", res = 800)
+grid.arrange(low.pulse[[1]], low.pulse[[2]], low.pulse[[3]],
+             low.pulse[[4]], low.pulse[[5]], low.pulse[[6]],
+             ncol = 2, nrow = 3)
+#dev.off()
+```
+*** 
+# Random Forest
+### Baseline/Current Scenario
+```{r echo = FALSE, message = FALSE}
+source("C:/Users/zsmith/Desktop/Impervious_Cover/Impervious_Cover/random_forest_func.R")
+plot_random_forest(base.cur[base.cur$TYPE %in% "train", ], "cur", alt.cols, 100000)
+```
+### Baseline/Impervious Scenario
+```{r echo = FALSE, message = FALSE}
+plot_random_forest(base.imp[base.imp$TYPE %in% "train", ], "imp", alt.cols, 100000)
+```
+***
+# Rpart
+### Baseline/Current Scenario
+```{r echo = FALSE}
+source("C:/Users/zsmith/Desktop/Impervious_Cover/Impervious_Cover/rpart_func.R")
+base.cur %>% 
+  filter(TYPE %in% "train") %>% 
+  plot_rpart("cur", alt.cols, "All")
+```
+***
+### Baseline/Impervious Scenario
+```{r echo = FALSE}
+base.imp %>% 
+  filter(TYPE %in% "train") %>% 
+  plot_rpart("imp", alt.cols, "All")
+```
+
+
+
+
+
+
+

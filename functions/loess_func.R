@@ -47,7 +47,8 @@ plot_loess <- function(metrics.df, metric, watershed.char,
           legend.key.height = unit(0.25, units = "cm")) +
     xlab(x.lab) +
     ylab(y.lab) +
-    scale_y_continuous(expand = c(0, 10)) +
+    scale_y_continuous(limits = c(0, max(metrics.df[, watershed.char]) + 10),
+                       expand = c(0, 10)) +
     geom_hline(aes(yintercept = 0), colour = "black", linetype = "dashed")
   
   

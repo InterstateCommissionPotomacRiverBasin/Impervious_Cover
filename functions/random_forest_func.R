@@ -89,22 +89,20 @@ plot_random_forest <- function(train.df, scenario, alt.cols, tree.number) {
     #--------------------------------------------------------------------------
     final.plot <- cowplot::plot_grid(mse.plot, node.plot, ncol = 2)
     #--------------------------------------------------------------------------
-    main.dir <- "C:/Users/zsmith/Desktop/Impervious_Cover/Output/Rforest"
+    main.dir <- "output"
     todays.date <- Sys.Date()
-    if (!dir.exists(file.path(main.dir, todays.date ))){
-      dir.create(file.path(main.dir, todays.date ))
+    scenario.folder <- ifelse(scenario %in% "cur", "baseline_current",
+                              ifelse(scenario %in% "imp", "baseline_impervious", "ERROR"))
+    main.path <- file.path(main.dir, todays.date, "Rforest", scenario.folder)
+    if (!dir.exists(main.path)){
+      dir.create(main.path, recursive = TRUE)
     }
-    scenario.dir <- paste(main.dir, todays.date, scenario, sep = "/")
-    if (!dir.exists(file.path(scenario.dir))){
-      dir.create(file.path(scenario.dir))
-    }
-    #setwd(scenario.dir)
     #----------------------------------------------------------------------------
     prefix <- paste0(scenario, as.character(tree.number))
     file.name <- paste0(paste(prefix, x, Sys.Date(), sep = "_"), ".png")
-    file.path <- paste(scenario.dir, file.name, sep = "/")
+    output.path <- file.path(main.path, file.name)
     #----------------------------------------------------------------------------
-    cowplot::ggsave(file.name, final.plot, width = 5, height = 4,
+    cowplot::ggsave(output.path, final.plot, width = 5, height = 4,
                     units = "in")
     cowplot::ggdraw() +
       cowplot::draw_plot(mse.plot, 0, 0, 0.5, 1) +

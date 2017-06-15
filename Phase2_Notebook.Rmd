@@ -21,6 +21,8 @@ alt.cols <- c("ALTERATION_MH21", "ALTERATION_DH17",
               "ALTERATION_LOW_PULSE_DURATION", "ALTERATION_3_DAY_MAXIMUM",
               "ALTERATION_3_DAY_MINIMUM", "ALTERATION_EXTREME_LOW_FLOW_FREQ",
               "ALTERATION_EXTREME_LOW_FLOW_DURATION", "IMPERV")
+alt.cols <- c("ALTERATION_MH21", "ALTERATION_FLASHINESS",
+              "ALTERATION_LOW_PULSE_DURATION", "IMPERV")
 # Import correlation functions.
 source("functions/correlation_func.R")
 ```
@@ -62,6 +64,14 @@ knitr::kable(corr_metric_imp(base.imp, "imp"), row.names = FALSE,
 ```
 ***
 # Loess Curves
+
+The color gradient in all loess plots belwo is based on the percentage of impervious
+cover in the Current scenario. The percentage of impervious cover in each
+watershed from the Baseline scenario is approximately zero. To create the 
+Impervious Cover scenario, the percentage of impervious cover in each watershed
+was increased by 10%.
+
+
 ### Baseline/Current Scenario
 ```{r echo = FALSE, warning = FALSE, message = FALSE}
 #==============================================================================
@@ -79,6 +89,21 @@ flash <- lapply(char.vec, function(char.x) {
 grid.arrange(flash[[1]], flash[[2]], flash[[3]], flash[[4]], flash[[5]], flash[[6]])
 #dev.off()
 #==============================================================================
+
+
+```
+### Baseline/Impervious Scenario
+```{r echo = FALSE, warning = FALSE, message = FALSE}
+flash <- lapply(char.vec, function(char.x) {
+  plot_loess(base.imp, "ALTERATION_FLASHINESS", watershed.char =  char.x,
+             low.lim = 0, high.lim = 10)
+})
+#png("ALTERATION_FLASHINESS_loess_plots.png", width = 6.5, height = 10.5, units = "in", res = 800)
+grid.arrange(flash[[1]], flash[[2]], flash[[3]], flash[[4]], flash[[5]], flash[[6]])
+#dev.off()
+```
+### Baseline/Current Scenario
+```{r echo = FALSE, warning = FALSE, message = FALSE}
 low.pulse <- lapply(char.vec, function(char.x) {
   
   plot_loess(base.cur, "ALTERATION_LOW_PULSE_DURATION", watershed.char =  char.x,
@@ -90,18 +115,11 @@ grid.arrange(low.pulse[[1]], low.pulse[[2]], low.pulse[[3]],
              low.pulse[[4]], low.pulse[[5]], low.pulse[[6]],
              ncol = 2, nrow = 3)
 #dev.off()
-
 ```
 
 ### Baseline/Impervious Scenario
 ```{r echo = FALSE, warning = FALSE, message = FALSE}
-flash <- lapply(char.vec, function(char.x) {
-  plot_loess(base.imp, "ALTERATION_FLASHINESS", watershed.char =  char.x,
-             low.lim = 0, high.lim = 10)
-})
-#png("ALTERATION_FLASHINESS_loess_plots.png", width = 6.5, height = 10.5, units = "in", res = 800)
-grid.arrange(flash[[1]], flash[[2]], flash[[3]], flash[[4]], flash[[5]], flash[[6]])
-#dev.off()
+
 #==============================================================================
 low.pulse <- lapply(char.vec, function(char.x) {
   

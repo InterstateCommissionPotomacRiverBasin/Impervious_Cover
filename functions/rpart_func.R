@@ -21,22 +21,19 @@ plot_rpart <- function(x, scenario, alt.cols, rpart.subset) {
   
   names(rpart.list) <- alt.cols
   #==============================================================================
-  main.dir <- paste0("C:/Users/zsmith/Desktop/Impervious_Cover/Output/Rpart/",
-                     rpart.subset)
+  main.dir <- "output"
   todays.date <- Sys.Date()
-  if (!dir.exists(file.path(main.dir, todays.date ))){
-    dir.create(file.path(main.dir, todays.date ))
+  scenario.folder <- ifelse(scenario %in% "cur", "baseline_current",
+                            ifelse(scenario %in% "imp", "baseline_impervious", "ERROR"))
+  main.path <- file.path(main.dir, todays.date, "Rpart", "plots", scenario.folder)
+  if (!dir.exists(main.path)){
+    dir.create(main.path, recursive = TRUE)
   }
-  scenario.dir <- paste(main.dir, todays.date, scenario, sep = "/")
-  if (!dir.exists(file.path(scenario.dir))){
-    dir.create(file.path(scenario.dir))
-  }
-  #setwd(scenario.dir)
   #----------------------------------------------------------------------------
   test <- lapply(alt.cols, function(metric.x) {
     file.name <- paste0(metric.x, ".png")
-    file.path <- paste(scenario.dir, file.name, sep = "/")
-    png(file.name)
+    output.path <- file.path(main.path, file.name)
+    png(output.path)
     invisible(rpart.plot(rpart.list[[metric.x]], main = metric.x, box.palette = 0))
     dev.off()
     rpart.plot(rpart.list[[metric.x]], main = metric.x, box.palette = 0)
@@ -45,6 +42,7 @@ plot_rpart <- function(x, scenario, alt.cols, rpart.subset) {
     test[[i]]
   }
   #============================================================================
+  return(rpart.list)
 }
 #==============================================================================
 # Reproduce plots similar to Phase 1 (page 10)
@@ -139,21 +137,19 @@ table_rpart_jackknife <- function(all.df, scenario, alt.cols, tree.number = 1000
   #----------------------------------------------------------------------------
   summary.df <- do.call(rbind, metric.summary)
   #----------------------------------------------------------------------------
-  main.dir <- "C:/Users/zsmith/Desktop/Impervious_Cover/Output/Rpart/Jackknife"
+  main.dir <- "output"
   todays.date <- Sys.Date()
-  if (!dir.exists(file.path(main.dir, todays.date ))){
-    dir.create(file.path(main.dir, todays.date ))
+  scenario.folder <- ifelse(scenario %in% "cur", "baseline_current",
+                            ifelse(scenario %in% "imp", "baseline_impervious", "ERROR"))
+  main.path <- file.path(main.dir, todays.date, "Rpart", "jackknife", scenario.folder)
+  if (!dir.exists(main.path)){
+    dir.create(main.path, recursive = TRUE)
   }
-  scenario.dir <- paste(main.dir, todays.date, scenario, sep = "/")
-  if (!dir.exists(file.path(scenario.dir))){
-    dir.create(file.path(scenario.dir))
-  }
-  #setwd(scenario.dir)
   #----------------------------------------------------------------------------
   prefix <- paste0(scenario, tree.number)
   file.name <- paste0(prefix, "_jackknife_", todays.date, ".csv")
-  file.path <- paste(scenario.dir, file.name, sep = "/")
-  write.csv(summary.df, file.path, row.names = FALSE)
+  output.path <- file.path(main.path, file.name)
+  write.csv(summary.df, output.path, row.names = FALSE)
 }
 
 #==============================================================================

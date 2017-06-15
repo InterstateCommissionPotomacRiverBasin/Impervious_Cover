@@ -25,20 +25,18 @@ corr_env_env <- function(all.df, scenario) {
   final.corr[[1]] <- env.names
   final.corr[is.na(final.corr)] <- ""
   #------------------------------------------------------------------------------
-  main.dir <- "C:/Users/zsmith/Desktop/Impervious_Cover/Output/Corr/Env_Env"
+  main.dir <- "output"
   todays.date <- Sys.Date()
-  if (!dir.exists(file.path(main.dir, todays.date ))){
-    dir.create(file.path(main.dir, todays.date ))
+  scenario.folder <- ifelse(scenario %in% "cur", "baseline_current",
+                            ifelse(scenario %in% "imp", "baseline_impervious", "ERROR"))
+  main.path <- file.path(main.dir, todays.date, "Corr", "Env_Env", scenario.folder)
+  if (!dir.exists(main.path)){
+    dir.create(main.path, recursive = TRUE)
   }
-  scenario.dir <- paste(main.dir, todays.date, scenario, sep = "/")
-  if (!dir.exists(file.path(scenario.dir))){
-    dir.create(file.path(scenario.dir))
-  }
-  #setwd(scenario.dir)
   #----------------------------------------------------------------------------
   file.name <- paste0(scenario, "_env_env_corr_", todays.date, ".csv")
-  file.path <- paste(scenario.dir, file.name, sep = "/")
-  write.csv(final.corr, file.path, row.names =  FALSE)
+  output.path <- file.path(main.path, file.name)
+  write.csv(final.corr, output.path, row.names =  FALSE)
   #----------------------------------------------------------------------------
   invisible(final.corr)
 }
@@ -68,20 +66,18 @@ corr_metric_metric <- function(all.df, scenario) {
   final.corr[[1]] <- metric.names
   final.corr[is.na(final.corr)] <- ""
   #------------------------------------------------------------------------------
-  main.dir <- "C:/Users/zsmith/Desktop/Impervious_Cover/Output/Corr/Metric_Metric"
+  main.dir <- "output"
   todays.date <- Sys.Date()
-  if (!dir.exists(file.path(main.dir, todays.date ))){
-    dir.create(file.path(main.dir, todays.date ))
+  scenario.folder <- ifelse(scenario %in% "cur", "baseline_current",
+                            ifelse(scenario %in% "imp", "baseline_impervious", "ERROR"))
+  main.path <- file.path(main.dir, todays.date, "Corr", "Metric_Metric", scenario.folder)
+  if (!dir.exists(main.path)){
+    dir.create(main.path, recursive = TRUE)
   }
-  scenario.dir <- paste(main.dir, todays.date, scenario, sep = "/")
-  if (!dir.exists(file.path(scenario.dir))){
-    dir.create(file.path(scenario.dir))
-  }
-  #setwd(scenario.dir)
   #----------------------------------------------------------------------------
   file.name <- paste0(scenario, "_metric_metric_corr_", todays.date, ".csv")
-  file.path <- paste(scenario.dir, file.name, sep = "/")
-  write.csv(final.corr, file.path, row.names =  FALSE)
+  output.path <- file.path(main.path, file.name)
+  write.csv(final.corr, output.path, row.names =  FALSE)
   #----------------------------------------------------------------------------
   invisible(final.corr)
 }
@@ -116,20 +112,18 @@ corr_metric_env <- function(all.df, scenario) {
   final.corr[[1]] <- metric.names
   final.corr[is.na(final.corr)] <- ""
   #------------------------------------------------------------------------------
-  main.dir <- "C:/Users/zsmith/Desktop/Impervious_Cover/Output/Corr/Metric_ENV"
+  main.dir <- "output"
   todays.date <- Sys.Date()
-  if (!dir.exists(file.path(main.dir, todays.date ))){
-    dir.create(file.path(main.dir, todays.date ))
+  scenario.folder <- ifelse(scenario %in% "cur", "baseline_current",
+                            ifelse(scenario %in% "imp", "baseline_impervious", "ERROR"))
+  main.path <- file.path(main.dir, todays.date, "Corr", "Metric_Env", scenario.folder)
+  if (!dir.exists(main.path)){
+    dir.create(main.path, recursive = TRUE)
   }
-  scenario.dir <- paste(main.dir, todays.date, scenario, sep = "/")
-  if (!dir.exists(file.path(scenario.dir))){
-    dir.create(file.path(scenario.dir))
-  }
-  #setwd(scenario.dir)
   #----------------------------------------------------------------------------
   file.name <- paste0(scenario, "_metric_env_corr_", todays.date, ".csv")
-  file.path <- paste(scenario.dir, file.name, sep = "/")
-  write.csv(final.corr, file.path, row.names =  FALSE)
+  output.path <- file.path(main.path, file.name)
+  write.csv(final.corr, output.path, row.names =  FALSE)
   #----------------------------------------------------------------------------
   invisible(final.corr)
 }
@@ -161,20 +155,18 @@ corr_metric_imp <- function(all.df, scenario) {
   final.corr[[1]] <- metric.names
   final.corr[is.na(final.corr)] <- ""
   #------------------------------------------------------------------------------
-  main.dir <- "C:/Users/zsmith/Desktop/Impervious_Cover/Output/Corr/Metric_Impervious"
+  main.dir <- "output"
   todays.date <- Sys.Date()
-  if (!dir.exists(file.path(main.dir, todays.date ))){
-    dir.create(file.path(main.dir, todays.date ))
+  scenario.folder <- ifelse(scenario %in% "cur", "baseline_current",
+                            ifelse(scenario %in% "imp", "baseline_impervious", "ERROR"))
+  main.path <- file.path(main.dir, todays.date, "Corr", "Metric_Impervious", scenario.folder)
+  if (!dir.exists(main.path)){
+    dir.create(main.path, recursive = TRUE)
   }
-  scenario.dir <- paste(main.dir, todays.date, scenario, sep = "/")
-  if (!dir.exists(file.path(scenario.dir))){
-    dir.create(file.path(scenario.dir))
-  }
-  #setwd(scenario.dir)
   #----------------------------------------------------------------------------
   file.name <- paste0(scenario, "_metric_impervious_corr_", todays.date, ".csv")
-  file.path <- paste(scenario.dir, file.name, sep = "/")
-  write.csv(final.corr, file.path, row.names =  FALSE)
+  output.path <- file.path(main.path, file.name)
+  write.csv(final.corr, output.path, row.names =  FALSE)
   #----------------------------------------------------------------------------
   invisible(final.corr)
 }

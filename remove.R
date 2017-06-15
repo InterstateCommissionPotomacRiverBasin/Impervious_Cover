@@ -72,7 +72,7 @@ pfit <- prune(rpart_model, cp=   rpart_model$cptable[which.min(rpart_model$cptab
 pfit <- prune(rpart_model, cp=   0.1)
 rpart.plot(pfit, extra = 1)
 rsq.rpart(rpart_model)
-rpart_predict <- predict(model, validation)
+rpart_predict <- predict(rpart_model, validation)
 mean(rpart_predict == validation$ALTERATION_MH21)
 
 test <- cbind(rpart_predict, validation$ALTERATION_MH21)
@@ -116,10 +116,21 @@ test$FLASH_CLASS2 <- ifelse(test$SLOPE >= 7.52, 1,
 test$FLASH_CLASS <- as.factor(test$FLASH_CLASS)
 test$FLASH_CLASS2 <- as.factor(test$FLASH_CLASS2)
 test$PRED <- predict(rpart.list$ALTERATION_FLASHINESS, newdata = training)
+group <- "FLASH_CLASS"
 ggplot(test, aes(FLASH_CLASS, ALTERATION_FLASHINESS, color = FLASH_CLASS)) + 
   geom_boxplot(outlier.alpha = 0, color = "black") + 
   geom_jitter(alpha = 0.30) + 
-  scale_colour_manual(values = c("green", "yellow", "orange", "red"))
+  scale_colour_manual(values = c("green", "yellow", "orange", "red")) +
+  theme_bw() +
+  theme(panel.border = element_blank(),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        axis.line = element_line(colour = "black"),
+        axis.title.x = element_text(size = 8),
+        axis.title.y = element_text(size = 8),
+        legend.title = element_blank(),
+        plot.margin = unit(c(0.25, 0, 0.25, 0), "cm"),
+        legend.key.height = unit(0.25, units = "cm")) 
 
 ggplot(test, aes(FLASH_CLASS2, PRED, color = FLASH_CLASS2)) + 
   geom_boxplot(outlier.alpha = 0, color = "black") + 

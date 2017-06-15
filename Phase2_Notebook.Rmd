@@ -151,14 +151,16 @@ plot_random_forest(base.imp[base.imp$TYPE %in% "train", ], "imp", alt.cols, 1000
 source("functions/rpart_func.R")
 base.cur %>% 
   filter(TYPE %in% "train") %>% 
-  plot_rpart("cur", alt.cols, "All")
+  plot_rpart("cur", alt.cols, "All") %>% 
+  invisible()
 ```
 ***
 ### Baseline/Impervious Scenario
 ```{r echo = FALSE}
 base.imp %>% 
   filter(TYPE %in% "train") %>% 
-  plot_rpart("imp", alt.cols, "All")
+  plot_rpart("imp", alt.cols, "All") %>% 
+  invisible()
 ```
 
 

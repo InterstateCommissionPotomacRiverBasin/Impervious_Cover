@@ -53,7 +53,7 @@ source("functions/rpart_func.R")
 plot_rpart_phase1(base.cur[base.cur$TYPE %in% "train", ], "cur", alt.cols)
 plot_rpart_phase1(base.imp[base.imp$TYPE %in% "train", ], "imp", alt.cols)
 
-
+#==============================================================================
 cur <- base.cur %>% 
   select(WATERSHED, ALTERATION_MH21, ALTERATION_DH17, ALTERATION_HIGH_PULSE_COUNT,
          ALTERATION_FLASHINESS, ALTERATION_LOW_PULSE_DURATION, 
@@ -69,4 +69,9 @@ imp <- base.imp %>%
 test <- full_join(cur, imp, by = c("WATERSHED", "ALTERATION"))
 test$DIFF <- test$VALUE_CUR - test$VALUE_IMP
 test2 <- test %>%
-  filter(ALTERATION %in% "ALTERATION_FLASHINESS")
+  filter(DIFF == 0) %>% 
+  group_by(ALTERATION) %>% 
+  mutate(PERCENT = length(ALTERATION) / 445 * 100) %>% 
+  select(ALTERATION, PERCENT) %>% 
+  distinct()
+table(test2$ALTERATION)

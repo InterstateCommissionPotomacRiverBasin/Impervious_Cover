@@ -10,17 +10,26 @@ library(rpart)
 library(rpart.utils)
 library(rpart.plot)
 library(magrittr)
+library(partykit)
+library(caret)
 # grow tree 
 plot_rpart <- function(x, scenario, alt.cols, rpart.subset) {
-  
+  tc <- trainControl(method = "repeatedcv", number = 10, repeats = 100)
+  rpart.grid <- expand.grid(.cp = 0.01)
+  rpart.grid <- expand.grid(maxdepth = 2)
+  #----------------------------------------------------------------------------
   rpart.list <- lapply(alt.cols, function(metric.x) {
-    my.formula <- paste(metric.x, "~ AREA + KARST + PRECIP + FCODE + SLOPE + SOIL")
-    rpart(my.formula, data = x, method = "anova",
-          control = list(maxdepth = 2, minsplit = 20, maxcompete = 3, xval = 10000))
+    #my.formula <- paste(metric.x, "~ AREA + KARST + PRECIP + FCODE + SLOPE + SOIL")
+    my.formula <- as.formula(paste(metric.x, "~ AREA + KARST + PRECIP + FCODE + SLOPE + SOIL"))
+    #rpart(my.formula, data = x, method = "anova",
+    #      control = list(maxdepth = 2, minsplit = 20, maxcompete = 3, xval = 10000))
+    train(my.formula,
+          data = x, method = "rpart2",
+          trControl = tc, tuneGrid = rpart.grid,
+          control = list(minsplit = 20, maxcompete = 3))
   })
-  
   names(rpart.list) <- alt.cols
-  #==============================================================================
+  #============================================================================
   main.dir <- "output"
   todays.date <- Sys.Date()
   scenario.folder <- ifelse(scenario %in% "cur", "baseline_current",
@@ -30,17 +39,18 @@ plot_rpart <- function(x, scenario, alt.cols, rpart.subset) {
     dir.create(main.path, recursive = TRUE)
   }
   #----------------------------------------------------------------------------
-  test <- lapply(alt.cols, function(metric.x) {
+  metric.x <- alt.cols[[1]]
+  lapply(alt.cols, function(metric.x) {
+    #party.plot <- partykit::as.party(rpart.list[[metric.x]])
     file.name <- paste0(metric.x, ".png")
     output.path <- file.path(main.path, file.name)
     png(output.path)
-    invisible(rpart.plot(rpart.list[[metric.x]], main = metric.x, box.palette = 0))
+    plot(partykit::as.party(rpart.list[[metric.x]]$finalModel))
+    #invisible(rpart.plot(rpart.list[[metric.x]], main = metric.x, box.palette = 0))
     dev.off()
-    rpart.plot(rpart.list[[metric.x]], main = metric.x, box.palette = 0)
+    #rpart.plot(rpart.list[[metric.x]], main = metric.x, box.palette = 0)
+    plot(partykit::as.party(rpart.list[[metric.x]]$finalModel), main = metric.x)
   })
-  for (i in 1:length(test)) {
-    test[[i]]
-  }
   #============================================================================
   return(rpart.list)
 }

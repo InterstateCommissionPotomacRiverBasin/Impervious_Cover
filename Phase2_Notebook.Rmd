@@ -3,10 +3,15 @@ title: "R Notebook"
 output:
   html_notebook: default
   html_document: default
+  pdf_document: default
+  word_document: default
 ---
+
 # Spearman Correlations
 ```{r echo = FALSE, message = FALSE}
 library(knitr)
+library(dplyr)
+#library(formattable)
 # Prepare the watershed characteristic data.
 source("prep/prep_metrics.R")
 #==============================================================================
@@ -21,56 +26,160 @@ alt.cols <- c("ALTERATION_MH21", "ALTERATION_DH17",
               "ALTERATION_LOW_PULSE_DURATION", "ALTERATION_3_DAY_MAXIMUM",
               "ALTERATION_3_DAY_MINIMUM", "ALTERATION_EXTREME_LOW_FLOW_FREQ",
               "ALTERATION_EXTREME_LOW_FLOW_DURATION", "IMPERV")
-alt.cols <- c("ALTERATION_MH21", "ALTERATION_FLASHINESS",
-              "ALTERATION_LOW_PULSE_DURATION", "IMPERV")
+env.cols <- c("AREA", "KARST", "PRECIP", "KFACT", "AVGKW", "FCODE", 
+               "SLOPE", "SOIL", "ECOREGION_C", "ECOREGION4", "ECOREGION3")
+
 # Import correlation functions.
 source("functions/correlation_func.R")
 ```
+
 ### Watershed Characteristics
+Soil Erodibility Factor and Mean Soil Erodibility were significantly correlated
+with the other watershed characteristics (r > 0.5), and therefore, were 
+removed from the analysis.
+
 ```{r echo = FALSE}
-kable(corr_env_env(base.cur, "cur"),
+kable(spear_corr(base.cur, "cur", env.cols, type = "env_env"),
              caption = "Watershed Chracteristics", row.names = FALSE,
       align = "lccccccccc")
 ```
-### Baseline/Current Scenario Alteration x Alteration
-```{r echo = FALSE}
-knitr::kable(corr_metric_metric(base.cur, "cur"), row.names = FALSE,
-      align = "lccccccccc")
-```
-### Baseline/Impervious Scenario Alteration x Alteration
-```{r echo = FALSE}
-knitr::kable(corr_metric_metric(base.imp, "imp"), row.names = FALSE,
-      align = "lccccccccc")
-```
-### Baseline/Current Scenario Alteration x Watershed Characteristic
-```{r echo = FALSE}
-knitr::kable(corr_metric_env(base.cur, "cur"), row.names = FALSE,
-      align = "lcccccccc")
-```
-### Baseline/Impervious Scenario Alteration x Watershed Characteristic
-```{r echo = FALSE}
-knitr::kable(corr_metric_env(base.imp, "imp"), row.names = FALSE,
-      align = "lcccccccc")
-```
-### Baseline/Current Scenario Alteration x %Impervious Cover
-```{r echo = FALSE}
-knitr::kable(corr_metric_imp(base.cur, "cur"), row.names = FALSE,
-      align = "lc")
-```
-### Baseline/Impervious Scenario Alteration x %Impervious Cover
-```{r echo = FALSE}
-knitr::kable(corr_metric_imp(base.imp, "imp"), row.names = FALSE,
-      align = "lc")
-```
-***
-# Loess Curves
 
+```{r echo = FALSE}
+#env.cols <- c("AREA", "KARST", "PRECIP", "FCODE", "SLOPE", "SOIL")
+```
+
+##  Alteration x Alteration
+In both scenarios 3-Day Minimum (cfs/sqmi), Extreme Low Flow Frequency,
+and Extreme Low Flow Duration were ignored because they were not present in the
+Phase 1 analysis or the Middle Potomac study. In subsequent analyses, these
+three alteration metrics were removed.
+
+In the Baseline/Current scenario Flashiness was significantly correlated 
+(r > 0.50) with MH21, DH17, High Pulse Count, and 3-Day Maximum (cfs/sqmi).
+However, in the Baseline/Impervious scenario Flashiness was only significantly
+correlated with High Pulse Count and 3-Day Maximum (cfs/sqmi). DH17 and MH21 
+were significantly correlated (r = 0.86). MH21 was excluded becuase it was 
+slightly more correlated with Flashiness (r = -0.40). Flashiness and 
+DH17 were retained for further analysis.
+
+In both scenarios, Low Pulse Duration was not significantly correlated with
+any of the other alteration metrics. Therefore, Low Pulse Duration was retained
+for further analyses.
+
+### Baseline/Current Scenario
+
+
+```{r echo = FALSE}
+knitr::kable(corr_metric_metric(base.cur, "cur", alt.cols), row.names = FALSE,
+      align = "lccccccccc")
+```
+
+### Baseline/Impervious Scenario
+```{r echo = FALSE}
+knitr::kable(corr_metric_metric(base.imp, "imp", alt.cols), row.names = FALSE,
+      align = "lccccccccc")
+```
+
+```{r echo = FALSE}
+alt.cols <- alt.cols[!alt.cols %in% c("ALTERATION_3_DAY_MINIMUM",
+                                         "ALTERATION_EXTREME_LOW_FLOW_FREQ",
+                                         "ALTERATION_EXTREME_LOW_FLOW_DURATION")]
+```
+
+
+## Alteration x Watershed Characteristic
+In both scenarios Low Pulse Duration was not significantly correlated
+(-0.5 < r < 0.5) with any watershed characteristics.
+
+In the Baseline/Current scenario, DH17 was significantly correlated with
+Soil Erodibility Factor, Mean Soil Erodbility. However, DH17 was
+not signficantly correlated with any watershed characteristics in
+the Baseline/Impervious scenario. 
+
+In the Baseline/Current scenario, Flashiness was significantly correlated with
+FCODEgraphic Province and Average Watershed Slope. However, Flashiness was
+only significanly correlated with Average watershed Slop in the 
+Baseline/Impervious scenario. In both scenarios Flashiness was negatively 
+correlated with Average Watershed Slope but the relationship was not as strong
+in the Baseline/Impervious scenario.
+
+### Baseline/Current Scenario 
+```{r echo = FALSE}
+knitr::kable(corr_metric_env(base.cur, "cur", env.cols, alt.cols), row.names = FALSE,
+      align = "lcccccccc")
+```
+
+### Baseline/Impervious Scenario
+```{r echo = FALSE}
+knitr::kable(corr_metric_env(base.imp, "imp", env.cols, alt.cols), row.names = FALSE,
+      align = "lcccccccc")
+```
+## Alteration x %Impervious Cover
+The percent change in Impervious Cover was held constant in the 
+Baseline/Impervious scenario, and therefore, correlations will not 
+exist between the Alteration metrics and the percent change in 
+Impervious cover. Low Pulse Duration was not signficantly correlated with
+the Percentage of Impervious Cover Change in the Baseline/Current Scenario. 
+Percent Impervious Cover Change was negatively correlated with DH17 and 
+positively correlated with Flashiness in the Baseline/Current scenario. 
+
+### Baseline/Current Scenario 
+```{r echo = FALSE}
+knitr::kable(corr_metric_imp(base.cur, "cur", alt.cols), row.names = FALSE,
+      align = "lc")
+```
+
+---
+
+# Loess Curves
 The color gradient in all loess plots belwo is based on the percentage of impervious
 cover in the Current scenario. The percentage of impervious cover in each
 watershed from the Baseline scenario is approximately zero. To create the 
 Impervious Cover scenario, the percentage of impervious cover in each watershed
 was increased by 10%.
 
+Categorical variables, like FCODE (FCODEgraphic Province) and Soil, are not
+appropriate for Loess curves. However, I left these plots in because they
+have the potental to inform patterns in the other plots.
+
+In general, the Baseline/Impervious Loess Curves show similar but weaker trends
+to the Baseline/Current. 
+
+## Flashiness
+
+Flashiness in the Baseline/Current scenario had a slight concave unimodal
+distribution when plotted against Area. This pattern did not exist for
+the Baseline/Impervious scenario.  Most likely the pattern observed in the
+Baseline/Current had to do with a development bias. The percent change
+in impervious cover can change more rapidly in small areas.  For example,
+a equally sized parking lots could be added to a small watershed and a 
+large watershed. Relative to the the large watershed, the proportion of 
+area disturbed by the parking lot is greater in the smaller watershed. 
+Therfore, minor land cover changes that occur in small Baseline/Current
+watersheds may have a large influence on Flashiness values. When land cover
+changes are held constant in the Baseline/Current scenario, the concave
+unimodal distribution disappears.
+
+The relationship beteen Karst and Flashiness appears to be 
+slightly stronger in the Baseline/Impervious scenario. As the percentage of
+Karst in a watershed increases, Flashiness may also increase.
+
+In both scenarios, Percipitation had an interesting convex unimodal 
+distribution when plotted against Flashiness. Although Precipitation was not 
+sigificantly correlated with FCODEgraphic Province (r = -0.45), the most 
+obvious explanation for this unimodal distiribution would be that certain 
+areas receive more rain than others. One way to look into this further would
+be to dividethe Ridge and Valley FCODEgrapic Province (FCODE = 62) into two 
+seperate provinces. My current assumption is that Ridges receive more rain than
+the other provinces but this is being masked by grouping Ridges with Valleys.
+
+Slope was negatively correlated with Flashiness in both scenarios 
+(See correlation section). Development is more prominent in flat 
+areas (low slope), therefore, in the Baseline/Current scenario the negative 
+correlation was assumed to be an artifact development bias. Although the 
+Baseline/Imperious scenario correlation was weaker, there does appear to be a
+negative correlation between Slope and Flashiness, even if the percent change
+in impervious cover is a constant.
 
 ### Baseline/Current Scenario
 ```{r echo = FALSE, warning = FALSE, message = FALSE}
@@ -80,18 +189,17 @@ source("functions/loess_func.R")
 #==============================================================================
 metric.vec <- c("ALTERATION_FLASHINESS", "ALTERATION_LOW_PULSE_DURATION")
 char.vec <- c("AREA", "KARST", "PRECIP", "FCODE", "SLOPE", "SOIL")
-#-----------------------------------------------------------------------------
+#***************************************************************************--
 flash <- lapply(char.vec, function(char.x) {
   plot_loess(base.cur, "ALTERATION_FLASHINESS", watershed.char =  char.x,
-             low.lim = 0, high.lim = 10)
+             low.lim = 0, high.lim = 10, color = TRUE)
 })
 #png("ALTERATION_FLASHINESS_loess_plots.png", width = 6.5, height = 10.5, units = "in", res = 800)
 grid.arrange(flash[[1]], flash[[2]], flash[[3]], flash[[4]], flash[[5]], flash[[6]])
 #dev.off()
 #==============================================================================
-
-
 ```
+
 ### Baseline/Impervious Scenario
 ```{r echo = FALSE, warning = FALSE, message = FALSE}
 flash <- lapply(char.vec, function(char.x) {
@@ -102,12 +210,76 @@ flash <- lapply(char.vec, function(char.x) {
 grid.arrange(flash[[1]], flash[[2]], flash[[3]], flash[[4]], flash[[5]], flash[[6]])
 #dev.off()
 ```
+## DH17
+Area and Karst had similar distirbutions in both scenarios but the values were
+generally lower and variability was generally smaller in the 
+Baseline/Impervious scenario.
+
+The Baseline/Current scenario had a concave, almost, biomodal distribution 
+between Precipitation and DH17. This pattern was dramatically reduced in 
+the Baseline/Impervious scenario.  There did appear to be a positive 
+relationship between Perceiptation and DH17 for percipitation values
+greater than 42.
+
+The was a strong positive correlation between Slope and DH17 in the 
+Baseline/Current scenario. However, this relationship did not exist in the
+Baseline/Impervious scenario. As was stated in the Flashiness section, the
+relationship observed in the Baseline/Current scenario may be due to a
+development bias.  Development occurs more frequently in flat areas.
+
+### Baseline/Current Scenario
+
+```{r echo = FALSE, warning = FALSE, message = FALSE}
+dh17 <- lapply(char.vec, function(char.x) {
+  
+  plot_loess(base.cur, "ALTERATION_DH17", watershed.char =  char.x,
+             low.lim = 0, high.lim = 10, color = TRUE)
+  
+})
+#png("ALTERATION_LOW_PULSE_DURATION_loess_plots.png", width = 6.5, height = 10.5, units = "in", res = 800)
+grid.arrange(dh17[[1]], dh17[[2]], dh17[[3]],
+             dh17[[4]], dh17[[5]], dh17[[6]],
+             ncol = 2, nrow = 3)
+#dev.off()
+```
+
+### Baseline/Impervious Scenario
+```{r echo = FALSE, warning = FALSE, message = FALSE}
+
+#==============================================================================
+dh17 <- lapply(char.vec, function(char.x) {
+  
+  plot_loess(base.imp, "ALTERATION_DH17", watershed.char =  char.x,
+             low.lim = 0, high.lim = 10)
+  
+})
+#png("ALTERATION_LOW_PULSE_DURATION_loess_plots.png", width = 6.5, height = 10.5, units = "in", res = 800)
+grid.arrange(dh17[[1]], dh17[[2]], dh17[[3]],
+             dh17[[4]], dh17[[5]], dh17[[6]],
+             ncol = 2, nrow = 3)
+#dev.off()
+```
+## Low Pulse Duration
+
+Area and Karst had similar distirbutions in both scenarios but the values were
+generally lower and variability was generally smaller in the 
+Baseline/Impervious scenario.
+
+In the Baseline/Current scenario, the relationship between Precipiation
+and Low Pulse Duration was a slightly concave unimodal distribution. There
+was no relationship in the Basline/Impervious scenario and there was
+generally less variance.
+
+There was a positive relationship between Slope and Low Pulse Duration
+in the Baseline/Current scenario.  There was no relationship observed
+between Slope and Low Pulse Duration in the Basline/Impervious scenario.
+
 ### Baseline/Current Scenario
 ```{r echo = FALSE, warning = FALSE, message = FALSE}
 low.pulse <- lapply(char.vec, function(char.x) {
   
   plot_loess(base.cur, "ALTERATION_LOW_PULSE_DURATION", watershed.char =  char.x,
-             low.lim = 0, high.lim = 10)
+             low.lim = 0, high.lim = 10, color = TRUE)
   
 })
 #png("ALTERATION_LOW_PULSE_DURATION_loess_plots.png", width = 6.5, height = 10.5, units = "in", res = 800)
@@ -133,19 +305,45 @@ grid.arrange(low.pulse[[1]], low.pulse[[2]], low.pulse[[3]],
              ncol = 2, nrow = 3)
 #dev.off()
 ```
-*** 
+
+---
+
 # Random Forest
+In the Baseline/Current scenario, Slope was consistently the most important 
+watershed characteristic for predicting Alteration Metric values.  Precipiation
+and Area were also important in the Flashiness Random Forest model. Similaraly,
+Precipiation was the second most import preditive variable in the Low Pulse
+Duration Random Forest model.
+
+In the Baseline/Impervious scenario, Slope dropped out as the most important
+predictive variable and was replaced with Precipiation. Karst was the second most
+important predictive variable for the DH17 Random Forest model. For the 
+Flashiness Random Forest model, Slope and Karst were also important predictive
+variables. Slope was the second most important predictive variable for the
+Low Pulse Duration Random Forest model but appeared to be relatively weak.
+
 ### Baseline/Current Scenario
 ```{r echo = FALSE, message = FALSE}
 source("functions/random_forest_func.R")
-plot_random_forest(base.cur[base.cur$TYPE %in% "train", ], "cur", alt.cols, 100000)
+base.cur %>% 
+  #filter(TYPE %in% "train") %>% 
+  plot_random_forest("cur", alt.cols, 100000)
 ```
+
 ### Baseline/Impervious Scenario
 ```{r echo = FALSE, message = FALSE}
-plot_random_forest(base.imp[base.imp$TYPE %in% "train", ], "imp", alt.cols, 100000)
+base.imp %>% 
+  #filter(TYPE %in% "train") %>%
+  plot_random_forest("imp", alt.cols, 100000)
 ```
-***
+
 # Rpart
+
+The _caret_ package function `train` was used to create the rpart trees. 
+A `maxdepth` of 4 was used. Addtionally, `trainControl` was set to 
+method = "repeatedcv", number = 10, repeats = 100; in other words a 10 fold
+cross validation was performed 100 times.
+
 ### Baseline/Current Scenario
 ```{r echo = FALSE}
 source("functions/rpart_func.R")
@@ -154,7 +352,7 @@ base.cur %>%
   plot_rpart("cur", alt.cols, "All") %>% 
   invisible()
 ```
-***
+
 ### Baseline/Impervious Scenario
 ```{r echo = FALSE}
 base.imp %>% 

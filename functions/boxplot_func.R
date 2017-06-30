@@ -4,28 +4,49 @@ training <- base.cur %>%
 validation <- base.cur %>% 
   filter(TYPE == "test")
 #==============================================================================
-rpart.cur <- plot_rpart(base.cur[base.cur$TYPE %in% "train", ], "cur", alt.cols, "All")
+rpart.cur <- plot_rpart(base.cur, "cur", alt.cols, "All")
 splits.df <- as.data.frame(rpart.cur$ALTERATION_FLASHINESS$splits)
+splits.df <- as.data.frame(rpart.cur$ALTERATION_DH17$splits)
 splits.df$characteristic <- row.names(splits.df)
 splits.df <- splits.df %>% 
   select(characteristic, count, index, improve) %>% 
   filter(count > 0) %>% 
   group_by(count) %>% 
   filter(improve == max(improve))
+library(rpart.utils)
+test <- rpart.lists(rpart.cur$ALTERATION_FLASHINESS)
+test2 <- data.frame(THRESH = unlist(test$L))
+test2$CHARACTERISTIC <- names(test$L)
 
 if (nrow(splits.df) == 3) {
-  test.df <- training %>% 
+  test <- base.cur %>% 
     select(TYPE, WATERSHED, AREA, KARST, PRECIP, FCODE, SLOPE, SOIL) %>% 
     tidyr::gather(CHARACTERISITIC, VALUE, AREA:SOIL)
-  test.df2 <- test.df %>% 
-    group_by(WATERSHED) %>% 
-    mutate(CLASS = ifelse())
 
+  rattle::fancyRpartPlot(rpart.cur$ALTERATION_FLASHINESS)
+  my.formula <- paste("ALTERATION_FLASHINESS", "~ AREA + KARST + PRECIP + FCODE + SLOPE + SOIL")
+  library(rpart)
+  test <- rpart(my.formula, data = base.cur, method = "anova",
+        control = list(maxdepth = 2, minsplit = 20, maxcompete = 3, xval = 10000))
+  library(partykit)
+  leaf.labs <- test$frame %>% 
+    dplyr::filter(var == "<leaf>") %>% 
+    dplyr::pull(n) %>% 
+    paste("n =", .)
+  mlab <- function(id, nobs, labs) paste("n =", labs[id])
+  plot(as.party(test)) #, tp_args = list(mainlab = test$frame))
+  plot(as.party(test))
   
-  class.1 <- CHARACTERISITIC %in% splits.df$characteristic[1] &
-    VALUE >= splits.df$index[1]
-  test$FLASH_CLASS <- ifelse(test$SLOPE >= 7.35, 1,
-                             ifelse(test$SLOPE < 7.35 & test$SLOPE >= 4.16, 2,
+  node1.var <- splits.df$CHARACTERISTIC[1]
+  node1.num <- splits.df$THRESH[1]
+  node2.var <- splits.df$CHARACTERISTIC[2]
+  node2.num <- splits.df$THRESH[2]
+  node3.var <- splits.df$CHARACTERISTIC[3]
+  node3.num <- splits.df$THRESH[3]
+
+
+  test$FLASH_CLASS <- ifelse(test[, node1.var] < node1.num & test[, node1.var] < node2.num, 1,
+                             ifelse(test[, node1.var] < node1.num & test[, node1.var] < node2.num, 1,
                                     ifelse(test$SLOPE < 4.16 & test$AREA >= 7.8, 3,
                                            ifelse(test$SLOPE < 4.16 & test$AREA < 7.8, 4, 10))))
 }
